@@ -21,7 +21,7 @@ class FacebookDownload extends EventEmitter {
 
     this.downloadImage = new DownloadImage();
     this.archive = new Archive({
-      deleteTargetFolder: false
+      deleteTargetFolder: true
     });
   }
 
@@ -63,7 +63,7 @@ class FacebookDownload extends EventEmitter {
   }
 
   async downloadPhotos() {
-    for(let i = 0; i < this.albums.length/10; i++) {
+    for(let i = 0; i < this.albums.length; i++) {
       const album = this.albums[i];
       this.emit('album:download', album);
       for(let j = 0; j < album.photos.length; j++) {
