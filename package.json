@@ -2,9 +2,10 @@
   "name": "dowload-fb-images",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/cli/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start:cli": "node src/cli/index.js",
+    "start:web": "node src/web/index.js"
   },
   "keywords": [],
   "author": "",

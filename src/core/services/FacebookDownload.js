@@ -6,11 +6,11 @@ const path = require('path');
 const util = require('util');
 const EventEmitter = require('events');
 const mkdir = util.promisify(fs.mkdir);
-const { Album } = require('./Album');
-const { DownloadImage } = require('./DownloadImage');
-const { Archive } = require('./Archive');
-const apiHelper = require('./ApiHelper');
-const fileHelper = require('./FileHelper');
+const { Album } = require('../models/Album');
+const { DownloadImage } = require('../helpers/DownloadImage');
+const { Archive } = require('../helpers/Archive');
+const apiHelper = require('../helpers/ApiHelper');
+const fileHelper = require('../helpers/FileHelper');
 
 class FacebookDownload extends EventEmitter {
 
