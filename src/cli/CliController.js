@@ -19,12 +19,12 @@ class CliController {
 
     try {
       this.facebookDownload.on('album:download:start', album => {
-        console.log(`Album: ${album.name} (${album.photos.length} photos)`);
-        this.cli.start(album.photos.length, 0);
+        console.log(`Album: ${album.name} (${album.count} photos)`);
+        this.cli.start(album.count, 0);
       });
 
       this.facebookDownload.on('album:download:end', album => {
-        this.cli.update(album.photos.length);
+        this.cli.update(album.count);
         console.log('');
         this.cli.stop();
       });

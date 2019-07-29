@@ -36,13 +36,12 @@ class ApiHelper {
     const response = await this.facebookAxios.get(`${albumId}/photos`, { params });
     return response.data.data;
   }
-
-
+  
   async getAllPhotoAlbums(userToken, params = {}) {
     params = {
       ...params,
       access_token: userToken,
-      fields: 'albums.limit(100){name, photos.limit(100){id, name, images}}',
+      fields: 'albums.limit(100){name, count, photos.limit(100){id, name, images}}',
       method: 'GET'
     };
     const response = await this.facebookAxios.post(`me`, params);
