@@ -30,7 +30,8 @@ class FacebookDownload extends EventEmitter {
 
     this.archive.on('archive:end', output => {
       this.emit('archive:end', output);
-    });  }
+    });
+  }
 
   async downloadUserPhotoAlbums() {
     try {

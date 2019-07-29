@@ -3,6 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const uuid = require('uuid');
 const axios = require('axios');
 const env = use('@/core/helpers/env');
 
@@ -19,10 +20,36 @@ class DownloadImage {
             fileName = facebookPhoto.getFileName();
         }
         const filePath = path.resolve(env.tempDirPath, 'images', albumName, fileName);
-        const writer = fs.createWriteStream(filePath);
+
+        return this._startDownload(
+          facebookPhoto.getHighestImageResolutionURL(),
+          filePath
+        );
+    }
+
+    /**
+     * @param facebookPhoto
+     * @param downloadFilePath
+     * @returns {Promise<*>}
+     */
+    async downloadAtPath(facebookPhoto, downloadFilePath) {
+        let fileName = facebookPhoto.getFileName();
+        if (!fileName) {
+            fileName = `picture-${uuid()}.png`;
+        }
+        const filePath = path.resolve(downloadFilePath, fileName);
+
+        return this._startDownload(
+          facebookPhoto.getHighestImageResolutionURL(),
+          filePath
+        );
+    }
+
+    async _startDownload(url, downloadFilePath) {
+        const writer = fs.createWriteStream(downloadFilePath);
 
         const response = await axios({
-            url: facebookPhoto.getHighestImageResolutionURL(),
+            url: url,
             method: 'GET',
             responseType: 'stream'
         });
