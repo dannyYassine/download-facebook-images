@@ -13,7 +13,9 @@
   "dependencies": {
     "archiver": "^3.0.3",
     "axios": "^0.19.0",
+    "cli-progress": "^2.1.1",
     "dotenv": "^8.0.0",
+    "operationkit": "^0.1.24",
     "opn": "^6.0.0"
   },
   "_moduleAliases": {

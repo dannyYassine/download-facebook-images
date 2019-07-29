@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const env = use('@/core/helpers/env');
 
 class DownloadImage {
 
@@ -17,7 +18,7 @@ class DownloadImage {
         if (!fileName) {
             fileName = facebookPhoto.getFileName();
         }
-        const filePath = path.resolve(__dirname, 'images', albumName, fileName);
+        const filePath = path.resolve(env.tempDirPath, 'images', albumName, fileName);
         const writer = fs.createWriteStream(filePath);
 
         const response = await axios({

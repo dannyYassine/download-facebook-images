@@ -11,19 +11,26 @@ const { DownloadImage } = require('../helpers/DownloadImage');
 const { Archive } = require('../helpers/Archive');
 const apiHelper = require('../helpers/ApiHelper');
 const fileHelper = require('../helpers/FileHelper');
+const env = use('@/core/helpers/env');
 
 class FacebookDownload extends EventEmitter {
 
   constructor(userToken) {
     super();
     this.userToken = userToken;
-    this.imagesFilePath = path.resolve(__dirname, 'images');
+    this.imagesFilePath = path.resolve(env.tempDirPath,  'images');
 
     this.downloadImage = new DownloadImage();
     this.archive = new Archive({
       deleteTargetFolder: true
     });
-  }
+    this.archive.on('archive:start', output => {
+      this.emit('archive:start', output);
+    });
+
+    this.archive.on('archive:end', output => {
+      this.emit('archive:end', output);
+    });  }
 
   async downloadUserPhotoAlbums() {
     try {
@@ -53,7 +60,7 @@ class FacebookDownload extends EventEmitter {
   async createAlbumDirectories() {
     for(let i = 0; i < this.albums.length; i++) {
       const album = this.albums[i];
-      const filePath = path.resolve(__dirname, 'images', album.name);
+      const filePath = path.resolve(env.appRoot, '.temp', 'images', album.name);
       const directoryExist = await fileHelper.directoryExists(filePath);
       if (!directoryExist) {
         mkdir(filePath);
@@ -65,20 +72,20 @@ class FacebookDownload extends EventEmitter {
   async downloadPhotos() {
     for(let i = 0; i < this.albums.length; i++) {
       const album = this.albums[i];
-      this.emit('album:download', album);
+      this.emit('album:download:start', album);
       for(let j = 0; j < album.photos.length; j++) {
         const photo = album.photos[j];
         this.emit('album:download:photo', photo, j);
         await this.downloadImage.download(photo, album.name, `picture-${j}.png`);
         album.setDownloadedPhoto(photo);
       }
+      this.emit('album:download:end', album);
     }
-
     return void 0;
   }
 
   async archiveImages() {
-    await this.archive.compress('images', 'images');
+    await this.archive.compress(this.imagesFilePath, this.imagesFilePath);
   }
 
   async tearDown() {

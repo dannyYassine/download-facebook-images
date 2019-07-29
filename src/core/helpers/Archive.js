@@ -4,13 +4,16 @@
 const fs = require('fs');
 const child_process = require('child_process');
 const util = require('util');
+const EventEmitter = require('events');
 
 const access = util.promisify(fs.access);
 const exec = util.promisify(child_process.exec);
+const env = use('@/core/helpers/env');
 
-class Archive {
+class Archive extends EventEmitter {
 
   constructor(options = {}) {
+    super();
     this.deleteTargetFolder = options.deleteTargetFolder || false;
   }
 
@@ -26,27 +29,32 @@ class Archive {
 
   startZip(folderNamePath, outputName) {
     return new Promise((resolve, reject) => {
-      console.log(folderNamePath, outputName);
+      this.emit(folderNamePath, outputName);
+      this.emit('archive:start');
       const zip = child_process.spawn('zip', [
         `-r`,
         `${folderNamePath}.zip`,
         outputName
-      ]);
-
-      zip.stdout.on('data', function (data) {
-        console.log(`Archiver: ${data.toString()}`);
+      ], {
+        cwd: env.appRoot
       });
 
-      zip.stderr.on('data', function (data) {
-        console.log(`Archiver ERROR: ${data.toString()}`);
+      zip.stdout.on('data', data => {
+        this.emit('archive:data', `${data.toString()}`);
       });
 
-      zip.on('exit', function (code) {
-        resolve();
+      zip.stderr.on('data', data => {
+        this.emit('archive:error', `${data.toString()}`);
       });
 
-      zip.on('error', function (code) {
-        reject();
+      zip.on('exit', code => {
+        this.emit('archive:end', code);
+        resolve(code);
+      });
+
+      zip.on('error', code => {
+        this.emit('archive:error', code);
+        reject(code);
       });
     });
   }
