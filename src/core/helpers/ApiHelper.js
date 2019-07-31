@@ -2,12 +2,13 @@
  * Created by dannyyassine
  */
 const axios = require('axios');
-
+const {Photo} = require('../models/Photo');
 class ApiHelper {
   constructor(facebookAxios = null) {
     this.facebookAxios = facebookAxios || axios.create({
       baseURL: 'https://graph.facebook.com/'
     });
+    this.photosLimit = 100;
   }
 
   async getUserAlbums(userToken, params = {}) {
@@ -20,28 +21,20 @@ class ApiHelper {
   }
 
   async getAlbumPhotos(album, userToken, params = {}) {
-    const albumIdsField = album.reduce(album, (accum, album, currentIndex, array) => {
-      accum += album.id;
-      if (currentIndex < array.length) {
-        accum += ',';
-      }
-      return accum;
-    }, '');
     params = {
       ...params,
-      access_token: userToken,
-      ids: albumIdsField,
-      fields: 'id,name,images'
+      access_token: userToken
     };
-    const response = await this.facebookAxios.get(`${albumId}/photos`, { params });
-    return response.data.data;
+    const response = await this.facebookAxios.get(`${album.id}/photos?fields=id,name,images&offset=${album.getDownloadCount()}&limit=${this.photosLimit}`, { params });
+    const photosData = response.data.data;
+    return Photo.decode(photosData);
   }
   
   async getAllPhotoAlbums(userToken, params = {}) {
     params = {
       ...params,
       access_token: userToken,
-      fields: 'albums.limit(100){name, count, photos.limit(100){id, name, images}}',
+      fields: `albums.limit(100){id, name, count, photos.limit(${this.photosLimit}){id, name, images}}`,
       method: 'GET'
     };
     const response = await this.facebookAxios.post(`me`, params);

@@ -18,28 +18,34 @@ class Album extends Model {
     this._undownloadedPhotos = {};
     this._downloadedPhotos = {};
 
-    this.addPhotosToDownload(this.photos);
+    this.photos.forEach(photo => {
+      this._undownloadedPhotos[photo.id] = photo;
+    });
   }
 
-  get needsToDownloadMorePhotos() {
+  getNeedsToDownloadMorePhotos() {
     return this.count !== (Object.keys(this._undownloadedPhotos).length + Object.keys(this._downloadedPhotos).length);
   }
 
   getPhotosToDownload() {
-    return this.photos.filter(photo => {
-      return !!this._undownloadedPhotos[photo.id];
+    return Object.keys(this._undownloadedPhotos).map(id => {
+      return this._undownloadedPhotos[id];
     });
   }
 
   setDownloadedPhoto(photo) {
     delete this._undownloadedPhotos[photo.id];
-    this._downloadedPhotos[photo.id] = true;
+    this._downloadedPhotos[photo.id] = photo;
+  }
+
+  getDownloadCount() {
+    return Object.keys(this._downloadedPhotos).length;
   }
 
   addPhotosToDownload(photos) {
     this.photos = this.photos.concat(photos);
     photos.forEach(photo => {
-      this._undownloadedPhotos[photo.id] = true;
+      this._undownloadedPhotos[photo.id] = photo;
     });
   }
 }

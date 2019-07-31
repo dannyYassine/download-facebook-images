@@ -10,10 +10,17 @@ class CreateAlbumDirectoriesUnit extends Operation {
    * @param {Album} albums
    * @param {string} directoryFilePath
    */
-  constructor(albums, directoryFilePath) {
+  constructor(directoryFilePath) {
     super();
-    this.albums = albums;
+    this.albums = null;
     this.directoryFilePath = directoryFilePath;
+  }
+
+  /**
+   * @param value
+   */
+  setAlbums(value) {
+    this.albums = value;
   }
 
   /**

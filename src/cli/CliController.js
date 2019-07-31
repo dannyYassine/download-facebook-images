@@ -16,7 +16,7 @@ class CliController {
    * @returns {Promise<void>}
    */
   async start() {
-
+    
     try {
       this.facebookDownload.on('album:download:start', album => {
         console.log(`Album: ${album.name} (${album.count} photos)`);

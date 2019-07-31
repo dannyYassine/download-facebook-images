@@ -11,7 +11,7 @@ const { DownloadImage } = require('../helpers/DownloadImage');
 const { Archive } = require('../helpers/Archive');
 const apiHelper = require('../helpers/ApiHelper');
 const fileHelper = require('../helpers/FileHelper');
-const env = use('@/core/helpers/env');
+const env = $get('env');
 
 class FacebookDownload extends EventEmitter {
 
@@ -74,15 +74,34 @@ class FacebookDownload extends EventEmitter {
     for(let i = 0; i < this.albums.length; i++) {
       const album = this.albums[i];
       this.emit('album:download:start', album);
-      for(let j = 0; j < album.photos.length; j++) {
-        const photo = album.photos[j];
+      const photos = album.getPhotosToDownload();
+      for(let j = 0; j < photos.length; j++) {
+        const photo = photos[j];
         this.emit('album:download:photo', photo, j);
         await this.downloadImage.download(photo, album.name, `picture-${j}.png`);
         album.setDownloadedPhoto(photo);
       }
+      if (album.getNeedsToDownloadMorePhotos()) {
+        await this.downloadMorePhotos(album);
+      }
       this.emit('album:download:end', album);
     }
     return void 0;
+  }
+
+  async downloadMorePhotos(album) {
+    const photos = await apiHelper.getAlbumPhotos(album, this.userToken);
+    album.addPhotosToDownload(photos);
+    const previousCount = album.getDownloadCount();
+    for(let j = 0; j < photos.length; j++) {
+      const photo = photos[j];
+      this.emit('album:download:photo', photo, previousCount+j);
+      await this.downloadImage.download(photo, album.name, `picture-${previousCount+j}.png`);
+      album.setDownloadedPhoto(photo);
+    }
+    if (album.getNeedsToDownloadMorePhotos()) {
+      await this.downloadMorePhotos(album);
+    }
   }
 
   async archiveImages() {

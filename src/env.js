@@ -5,5 +5,6 @@ const path = require('path');
 
 module.exports = {
   appRoot: appRoot,
-  tempDirPath: path.resolve(appRoot, '.temp')
+  tempDirPath: path.resolve(appRoot, '.temp'),
+  imagesDirPath: path.resolve(appRoot, '.temp', 'images'),
 };

@@ -8,7 +8,7 @@ const EventEmitter = require('events');
 
 const access = util.promisify(fs.access);
 const exec = util.promisify(child_process.exec);
-const env = use('@/core/helpers/env');
+const env = $get('env');
 
 class Archive extends EventEmitter {
 

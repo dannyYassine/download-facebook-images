@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
 const axios = require('axios');
-const env = use('@/core/helpers/env');
+const env = $get('env');
 
 class DownloadImage {
 

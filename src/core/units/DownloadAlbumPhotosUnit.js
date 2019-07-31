@@ -1,6 +1,7 @@
 /**
  * Created by dannyyassine
  */
+const { Operation } = require('operationkit');
 const { DownloadImage } = require('../helpers/DownloadImage');
 
 class DownloadAlbumPhotosUnit extends Operation {
@@ -9,6 +10,14 @@ class DownloadAlbumPhotosUnit extends Operation {
     super();
     this.downloadImage = new DownloadImage();
   }
+
+  /**
+   * @param value
+   */
+  setAlbums(value) {
+    this.albums = value;
+  }
+
   /**
    * @returns {Promise<*>}
    */

@@ -6,8 +6,9 @@ const { Archive } = require('../helpers/Archive');
 
 class CompressDirectoryUnit extends Operation {
 
-  constructor() {
+  constructor(imagesFilePath) {
     super();
+    this.imagesFilePath = imagesFilePath;
     this.archive = new Archive({
       deleteTargetFolder: true
     });
