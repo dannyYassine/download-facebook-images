@@ -28,7 +28,7 @@ class FileHelper {
    */
   async directoryExists(dir) {
     try {
-      await access(file, fs.constants.F_OK);
+      await access(dir, fs.constants.F_OK);
       return true;
     } catch (e) {
       return false

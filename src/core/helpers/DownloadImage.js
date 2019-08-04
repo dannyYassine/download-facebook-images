@@ -29,6 +29,21 @@ class DownloadImage {
 
     /**
      * @param facebookPhoto
+     * @param albumName
+     * @param fileName
+     * @returns {Promise<*>}
+     */
+    async downloadFromUrl(url, albumName, fileName) {
+        const filePath = path.resolve(env.tempDirPath, 'images', albumName, fileName);
+
+        return this._startDownload(
+          url,
+          filePath
+        );
+    }
+
+    /**
+     * @param facebookPhoto
      * @param downloadFilePath
      * @returns {Promise<*>}
      */

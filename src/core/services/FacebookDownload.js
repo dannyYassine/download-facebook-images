@@ -39,6 +39,7 @@ class FacebookDownload extends EventEmitter {
       await this.createImagesDirectory();
       await this.createAlbumDirectories();
       await this.downloadPhotos();
+      await this.downloadTaggedPhotos();
       await this.archiveImages();
     } catch (e) {
       await this.tearDown();
@@ -102,6 +103,10 @@ class FacebookDownload extends EventEmitter {
     if (album.getNeedsToDownloadMorePhotos()) {
       await this.downloadMorePhotos(album);
     }
+  }
+
+  async downloadTaggedPhotos() {
+
   }
 
   async archiveImages() {
