@@ -64,3 +64,4 @@ typings/
 .idea
 
 .temp/*
+src/cli/.temp/*

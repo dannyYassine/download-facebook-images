@@ -18,18 +18,40 @@ class ExtractTaggedPhotos {
     this.password = password;
     this.facebookUserName = facebookUserName;
 
-    this.imagesFilePath = path.resolve(env.tempDirPath,  'images');
-
     this.page = null;
     this.browser = null;
     this.previousURL = null;
     this.photos = [];
     this.map = {};
+
+    this.imagesFilePath = path.resolve(env.tempDirPath,  'images');
     this.archive = new Archive();
+    this.downloadImage = new DownloadImage();
   }
 
   async start() {
     await this.setUp();
+    await this.createImagesDirectory();
+    await this.createTaggedDirectory();
+    await this.retrieveImages();
+    await this.downloadImages();
+    await this.archiveImages();
+  }
+
+  async setUp() {
+    this.browser = await puppeteer.launch({
+      headless: false,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const context = this.browser.defaultBrowserContext();
+    await context.overridePermissions('https://facebook.com', ['notifications']);
+
+    this.page = await this.browser.newPage();
+
+    this.page.setViewport({ width: 1280, height: 926 });
+  }
+
+  async retrieveImages() {
     const cookies = await this.login();
 
     await this.page.setCookie(...cookies);
@@ -41,25 +63,6 @@ class ExtractTaggedPhotos {
     await this.getImages();
 
     await this.browser.close();
-
-    await this.createDirectory();
-    await this.save();
-    await this.archiveImages();
-  }
-
-  async setUp() {
-    this.browser = await puppeteer.launch({
-      // headless: false,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const context = this.browser.defaultBrowserContext();
-    await context.overridePermissions('https://facebook.com', ['notifications']);
-
-    this.page = await this.browser.newPage();
-
-    this.page.setViewport({ width: 1280, height: 926 });
-
-    this.downloadImage = new DownloadImage();
   }
 
   async login() {
@@ -72,7 +75,7 @@ class ExtractTaggedPhotos {
     await this.page.click('#loginbutton input');
     await this.page.waitForNavigation();
 
-    return await this.page.cookies();
+    return this.page.cookies();
   }
 
   /**
@@ -81,17 +84,13 @@ class ExtractTaggedPhotos {
   async getImages() {
     console.log('Getting images...');
 
-    let item = await this.page.$('li.fbPhotoStarGridElement');
-
     this.previousURL = await this.page.url();
 
+    let item = await this.page.$('li.fbPhotoStarGridElement');
     item.click();
 
     try {
-      await this.page.waitForFunction(async () => {
-        return this.previousURL !== window.location.href;
-      });
-      await this.page.waitFor(1000);
+      await this.waitForUrlChange();
       this.previousURL = await this.page.url();
       await this.getThumbnail();
     } catch (e) {
@@ -115,7 +114,7 @@ class ExtractTaggedPhotos {
     const fbid = urlObject.searchParams.get('fbid');
 
     if (!fbid) {
-      await this.goToNextImage();
+      await this.goToNextImage(url);
       return;
     }
 
@@ -128,32 +127,34 @@ class ExtractTaggedPhotos {
     console.log(`Image: ${url}`);
 
     this.photos.push(photoSrc);
-
     this.map[fbid] = true;
 
-    await this.goToNextImage();
+    await this.goToNextImage(url);
   }
 
-  async goToNextImage() {
+  async goToNextImage(url) {
     await this.page.keyboard.press('ArrowRight');
-
-    await this.page.waitForFunction(async () => {
-      return this.previousURL !== window.location.href;
-    });
-    await this.page.waitFor(1000);
+    await this.waitForUrlChange();
     this.previousURL = url;
     await this.getThumbnail();
   }
 
-  async createDirectory() {
-    const filePath = path.resolve(env.appRoot, '.temp', 'images', 'tagged-photos');
+  async createImagesDirectory() {
+    const directoryExist = await fileHelper.directoryExists(this.imagesFilePath);
+    if (!directoryExist) {
+      await fileHelper.mkDir(this.imagesFilePath);
+    }
+  }
+
+  async createTaggedDirectory() {
+    const filePath = path.resolve(this.imagesFilePath, 'tagged-photos');
     const directoryExist = await fileHelper.directoryExists(filePath);
     if (!directoryExist) {
       await fileHelper.mkDir(filePath);
     }
   }
 
-  async save() {
+  async downloadImages() {
     for (let i = 0; i < this.photos.length; i++) {
       const photoUrl = this.photos[i];
       console.log(`Downloading image ${i}`);
@@ -163,6 +164,13 @@ class ExtractTaggedPhotos {
 
   async archiveImages() {
     await this.archive.compress(this.imagesFilePath, this.imagesFilePath);
+  }
+
+  async waitForUrlChange() {
+    await this.page.waitForFunction(async () => {
+      return this.previousURL !== window.location.href;
+    });
+    await this.page.waitFor(1000);
   }
 
   waitForKeyboardPress(keyPress, options = {}) {

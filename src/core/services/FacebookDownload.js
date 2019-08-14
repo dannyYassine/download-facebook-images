@@ -105,10 +105,6 @@ class FacebookDownload extends EventEmitter {
     }
   }
 
-  async downloadTaggedPhotos() {
-
-  }
-
   async archiveImages() {
     await this.archive.compress(this.imagesFilePath, this.imagesFilePath);
   }
