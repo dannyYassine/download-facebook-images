@@ -1,10 +1,7 @@
 /**
  * Created by dannyyassine
  */
-const fs = require('fs');
 const path = require('path');
-const { promisify }= require('util');
-const writeFile = promisify(fs.writeFile);
 const express = require('express');
 const app = express()
 const port = 3000
@@ -20,8 +17,6 @@ app.get('/', (req, res) => {
 
 app.post('/', async (req, res) => {
   res.send('Thanks!');
-  const filePath = path.resolve(__dirname, '../../', '.temp', 'user.json');
-  await writeFile(filePath, JSON.stringify({token: req.body.token}), 'utf8');
   process.send({token: req.body.token});
 })
 
