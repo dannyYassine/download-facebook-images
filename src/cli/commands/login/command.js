@@ -10,12 +10,11 @@ const ngrok = require('ngrok');
 const path = require('path');
 
 module.exports = (program) => {
-  program
-    .command('login to Facebook')
+  return program
+    .command('login')
     .description('Log in to your facebook account to get session token')
     .action(async (command, options) => {
       const url = await ngrok.connect(3000);
-
       console.log('We need you to login in order for us to get yours photos :)');
       console.log('Please log in at:')
       console.log(url);
@@ -34,6 +33,9 @@ module.exports = (program) => {
 
         console.log('Got token!');
         child.kill('SIGKILL');
+
+        console.log('now run: \'fb-download albums\' to get your albums!');
+
         process.exit(0);
       });
     });

@@ -1,7 +1,6 @@
 const cliProgress = require('cli-progress');
 
 const { FacebookDownload } = use('@/core/services/FacebookDownload');
-const { ExtractTaggedPhotos } = use('@/core/services/ExtractTaggedPhotos');
 
 class CliController {
 

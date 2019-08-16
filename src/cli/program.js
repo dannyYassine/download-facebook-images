@@ -2,12 +2,14 @@
 const program = require('commander');
 
 const login = require('./commands/login');
-const download = require('./commands/download');
+const albums = require('./commands/albums');
+const tagged = require('./commands/tagged');
 
 program
   .version('0.1.0');
 
 login(program);
-download(program);
+albums(program);
+tagged(program);
 
 program.parse(process.argv);

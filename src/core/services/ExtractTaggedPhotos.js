@@ -1,19 +1,22 @@
 /**
  * Created by dannyyassine
  */
-const puppeteer = require('puppeteer');
-const fs = require('fs');
+const EventEmitter = require('events');
 const path = require('path');
-const querystring = require('querystring');
+
+const puppeteer = require('puppeteer');
+
 const { DownloadImage } = require('../helpers/DownloadImage');
 const fileHelper = require('../helpers/FileHelper');
 const { Archive } = require('../helpers/Archive');
 
 const env = $get('env');
 
-class ExtractTaggedPhotos {
+class ExtractTaggedPhotos extends EventEmitter {
 
   constructor(email, password, facebookUserName) {
+    super();
+
     this.email= email;
     this.password = password;
     this.facebookUserName = facebookUserName;
@@ -25,7 +28,15 @@ class ExtractTaggedPhotos {
     this.map = {};
 
     this.imagesFilePath = path.resolve(env.tempDirPath,  'images');
-    this.archive = new Archive();
+    this.archive = new Archive({
+      deleteTargetFolder: true
+    });
+    this.archive.on('archive:start', output => {
+      this.emit('archive:start', output);
+    });
+    this.archive.on('archive:end', output => {
+      this.emit('archive:end', output);
+    });
     this.downloadImage = new DownloadImage();
   }
 
@@ -40,7 +51,7 @@ class ExtractTaggedPhotos {
 
   async setUp() {
     this.browser = await puppeteer.launch({
-      headless: false,
+      // headless: false,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const context = this.browser.defaultBrowserContext();
@@ -56,7 +67,7 @@ class ExtractTaggedPhotos {
 
     await this.page.setCookie(...cookies);
 
-    console.log(`Going to: https://facebook.com/${this.facebookUserName}/photos`);
+    this.emit('download:step', `Going to: https://facebook.com/${this.facebookUserName}/photos`);
     await this.page.goto(`https://facebook.com/${this.facebookUserName}/photos`); // Opens page as logged user
     await this.page.waitFor(5000);
 
@@ -66,7 +77,7 @@ class ExtractTaggedPhotos {
   }
 
   async login() {
-    console.log('Login in...');
+    this.emit('download:step', 'Login in...');
 
     await this.page.goto('https://facebook.com');
 
@@ -82,7 +93,7 @@ class ExtractTaggedPhotos {
    * @returns {Promise<void>}
    */
   async getImages() {
-    console.log('Getting images...');
+    this.emit('download:step', 'Getting images...');
 
     this.previousURL = await this.page.url();
 
@@ -103,6 +114,8 @@ class ExtractTaggedPhotos {
    *
    */
   async getThumbnail() {
+    this.emit('download:step', `Getting image ${this.photos.length}`)
+
     await this.page.waitForSelector('#photos_snowlift img.spotlight');
 
     const photoSrc = await this.page.evaluate(() => {
@@ -119,12 +132,10 @@ class ExtractTaggedPhotos {
     }
 
     if (this.map[fbid]) {
-      console.log(urlObject.searchParams.get('fbid'));
-      console.log(url);
+      this.emit('download:step', urlObject.searchParams.get('fbid'));
+      this.emit('download:step', url);
       throw 'already has photo';
     }
-
-    console.log(`Image: ${url}`);
 
     this.photos.push(photoSrc);
     this.map[fbid] = true;
@@ -155,11 +166,13 @@ class ExtractTaggedPhotos {
   }
 
   async downloadImages() {
+    this.emit('tagged:download:start', {total: this.photos.length})
     for (let i = 0; i < this.photos.length; i++) {
       const photoUrl = this.photos[i];
-      console.log(`Downloading image ${i}`);
+      this.emit('tagged:download:photo', {url: photoUrl, index: i})
       await this.downloadImage.downloadFromUrl(photoUrl, 'tagged-photos', `picture-${i}.png`);
     }
+    this.emit('tagged:download:end')
   }
 
   async archiveImages() {

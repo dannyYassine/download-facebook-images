@@ -39,7 +39,6 @@ class FacebookDownload extends EventEmitter {
       await this.createImagesDirectory();
       await this.createAlbumDirectories();
       await this.downloadPhotos();
-      await this.downloadTaggedPhotos();
       await this.archiveImages();
     } catch (e) {
       await this.tearDown();
