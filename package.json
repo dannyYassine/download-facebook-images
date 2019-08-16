@@ -1,6 +1,6 @@
 {
-  "name": "dowload-fb-images",
-  "version": "1.0.0",
+  "name": "fb-media",
+  "version": "0.0.1",
   "description": "",
   "main": "src/cli/index.js",
   "scripts": {
