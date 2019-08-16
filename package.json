@@ -1,6 +1,6 @@
 {
   "name": "fb-media",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "src/cli/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "start:web": "cd src/web; adonis serve --dev"
   },
   "bin": {
-    "fb-download": "./src/cli/index.js"
+    "fb-media": "./src/cli/index.js"
   },
   "keywords": [],
   "author": "",
