@@ -13,7 +13,7 @@ module.exports = (program) => {
     .description('Downloads photos from your Facebook account')
     .action(async (option, cmd) => {
       // pass token
-      const filePath = path.resolve(__dirname, '../..', .cache, 'user.json');
+      const filePath = path.resolve(__dirname, '../..', '.cache', 'user.json');
       const json = await readFile(filePath, 'utf8');
       const data = JSON.parse(json);
       const child = fork(`${__dirname}/worker.js`, [data.token]);

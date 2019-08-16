@@ -28,7 +28,7 @@ module.exports = (program) => {
       let child = fork(`${__dirname}/worker.js`);
       child.on('message', async (data) => {
         const { token } = data;
-        const filePath = path.resolve(__dirname, '../../', .cache, 'user.json');
+        const filePath = path.resolve(__dirname, '../../', '.cache', 'user.json');
         await writeFile(filePath, JSON.stringify({ token }), 'utf8');
 
         console.log('Got token!');
