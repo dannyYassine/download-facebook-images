@@ -61,7 +61,7 @@ class FacebookDownload extends EventEmitter {
   async createAlbumDirectories() {
     for(let i = 0; i < this.albums.length; i++) {
       const album = this.albums[i];
-      const filePath = path.resolve(env.appRoot, '.temp', 'images', album.name);
+      const filePath = path.resolve(env.appRoot, .cache, 'images', album.name);
       const directoryExist = await fileHelper.directoryExists(filePath);
       if (!directoryExist) {
         mkdir(filePath);
