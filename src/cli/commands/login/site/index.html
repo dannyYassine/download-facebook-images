@@ -42,19 +42,16 @@
 			<div class="row justify-content-end fullscreen">
 				<div class="col-lg-6 col-md-12 home-banner-left d-flex fullscreen align-items-center">
 					<div>
-						<h1 class="">
-							We Are <span>Crafted</span>. <br>
-							Design & Development <br>
-							<span>Service</span> Provider.
+						<h1 id="app_title" class="">
+							Please <span>login</span>. <br>
+							to start downloading... <br>
 						</h1>
-						<p class="mx-auto mb-40">
-							Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-							magna aliqua.
-						</p>
-						<fb:login-button
-								scope="public_profile,email"
-								onlogin="checkLoginState();">
-						</fb:login-button>
+						<div id="facebook_button">
+							<fb:login-button
+									scope="public_profile,email"
+									onlogin="checkLoginState();">
+							</fb:login-button>
+						</div>
 					</div>
 				</div>
 				<div class="col-lg-6 col-md-12 no-padding home-banner-right d-flex fullscreen align-items-end">
@@ -164,7 +161,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 						'into this app.';
 			}
 
-			await axios.post(window.location.href, {token: response.authResponse.accessToken});
+			const reponse = await axios.post(window.location.href, {token: response.authResponse.accessToken});
+			document.querySelector('#app_title').innerHTML = 'Got the token! Now go back to your terminal for further instructions.'
+			document.querySelector('#facebook_button').style.display = 'none';
 		}
 
 		window.fbAsyncInit = function() {

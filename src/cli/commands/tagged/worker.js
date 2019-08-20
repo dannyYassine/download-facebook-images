@@ -1,6 +1,6 @@
 /**
  * Created by dannyyassine
- */
+*/
 require('../../../bootstrap');
 const { TaggedController } = require('./TaggedController');
 
