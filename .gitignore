@@ -62,3 +62,9 @@ typings/
 
 # ide
 .idea
+
+.cache/*
+src/cli/.cache/*
+
+!.cache/README.md
+!src/cli/.cache/README.md
